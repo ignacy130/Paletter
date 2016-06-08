@@ -19,35 +19,46 @@ namespace Paletter
     {
         public Dictionary<ImageFile, ImageFile> ImagePairs { get; set; }
 
-        public double[] GetColorsVector(ImageFile img1, ImageFile img2)
+        public double[] GetColorsVector(Image img1, Image img2)
         {
-            var p1 = GetPalette(img1.Image, 5).ToList();
-            var p2 = GetPalette(img2.Image, 5).ToList();
+            var palette1 = GetPalette(img1, 5).ToList();
+            var palette2 = GetPalette(img2, 5).ToList();
 
             var colorsVector = new Dictionary<int, double>();
 
+            Console.WriteLine("p1 palette");
+            palette1.Select(x => $"{x.R}, {x.G}, {x.B}").ToList().ForEach(Console.WriteLine);
+            Console.WriteLine();
+            Console.WriteLine("p2 palette");
+            palette2.Select(x => $"{x.R}, {x.G}, {x.B}").ToList().ForEach(Console.WriteLine);
+            Console.WriteLine();
             for (int i = 0; i < 5; i++)
             {
                 colorsVector.Add(i, 0);
-                double smallest = 0;
-                int nearest = 0;
-                for (int j = 0; j < 5; j++)
-                {
-                    if (p2[j].A != 0)
-                    {
-                        var p = GetDeltaE(p1[i], p2[j]);
-                        if (p < smallest)
-                        {
-                            smallest = p;
-                            nearest = j;
-                        }
-                    }
-                }
-                p2[nearest] = Color.FromArgb(0, 0, 0, 0);
-                colorsVector[i] = smallest;
+                
+                colorsVector[i] = GetSmallestDifference(palette1[i], palette2);
             }
 
             return colorsVector.Values.ToArray();
+        }
+
+        private double GetSmallestDifference(Color color, List<Color> palette)
+        {
+            double smallest = 0;
+            int nearest = 0;
+            for (int j = 0; j < 5; j++)
+            {
+                if (palette[j].A != 0)
+                {
+                    var p = GetDeltaE(color, palette[j]);
+                    if (j == 0 || p < smallest)
+                    {
+                        smallest = p;
+                        nearest = j;
+                    }
+                }
+            }
+            return smallest;
         }
 
         public double GetDeltaE(Color c1, Color c2)
@@ -73,37 +84,41 @@ namespace Paletter
         public IEnumerable<Color> GetPalette(Image img, int colorsNumber)
         {
             int thumbSize = 32;
-            Dictionary<Color, int> colors = new Dictionary<Color, int>();
-            var bitmap = img;
-            Bitmap thumbBmp =
-            new Bitmap(bitmap.GetThumbnailImage(thumbSize, thumbSize, ThumbnailCallback, IntPtr.Zero));
+            var thumbBmp = new Bitmap(img.GetThumbnailImage(thumbSize, thumbSize, ThumbnailCallback, IntPtr.Zero));
+            var imgColors = GetHistogram(thumbSize, thumbBmp);
 
-            //just for test
-            //pictureBox2.Image = thumbBmp;
+            var keyValueList = new List<KeyValuePair<Color, int>>(imgColors);
 
+            keyValueList.Sort(
+                delegate (KeyValuePair<Color, int> firstPair, KeyValuePair<Color, int> nextPair)
+                {
+                    return nextPair.Value.CompareTo(firstPair.Value);
+                }
+            );
+
+            var top = keyValueList.Take(colorsNumber);
+            return top.Select(t => t.Key);
+        }
+
+        private Dictionary<Color, int> GetHistogram(int thumbSize, Bitmap thumbBmp)
+        {
+            var imgColors = new Dictionary<Color, int>();
             for (int i = 0; i < thumbSize; i++)
             {
                 for (int j = 0; j < thumbSize; j++)
                 {
-                    Color col = thumbBmp.GetPixel(i, j);
-                    if (colors.ContainsKey(col))
-                        colors[col]++;
+                    var color = thumbBmp.GetPixel(i, j);
+                    if (imgColors.ContainsKey(color))
+                    {
+                        imgColors[color]++;
+                    }
                     else
-                        colors.Add(col, 1);
+                    {
+                        imgColors.Add(color, 1);
+                    }
                 }
             }
-
-            var keyValueList = new List<KeyValuePair<Color, int>>(colors);
-
-            keyValueList.Sort(
-                delegate (KeyValuePair<Color, int> firstPair,
-                KeyValuePair<Color, int> nextPair)
-                {
-                    return nextPair.Value.CompareTo(firstPair.Value);
-                });
-
-            var top = keyValueList.Take(colorsNumber);
-            return top.Select(t => t.Key);
+            return imgColors;
         }
 
         public bool ThumbnailCallback() { return false; }
