@@ -24,7 +24,7 @@ namespace Paletter
             var palette1 = GetPalette(img1, 5).ToList();
             var palette2 = GetPalette(img2, 5).ToList();
 
-            var colorsVector = new Dictionary<int, double>();
+            var colorsVector = new double[5];
 
             Console.WriteLine("p1 palette");
             palette1.Select(x => $"{x.R}, {x.G}, {x.B}").ToList().ForEach(Console.WriteLine);
@@ -34,12 +34,10 @@ namespace Paletter
             Console.WriteLine();
             for (int i = 0; i < 5; i++)
             {
-                colorsVector.Add(i, 0);
-                
                 colorsVector[i] = GetSmallestDifference(palette1[i], palette2);
             }
 
-            return colorsVector.Values.ToArray();
+            return colorsVector.ToArray();
         }
 
         private double GetSmallestDifference(Color color, List<Color> palette)
