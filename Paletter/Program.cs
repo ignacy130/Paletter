@@ -43,7 +43,7 @@ namespace Paletter
         [STAThread]
         static void Main(string[] args)
         {
-            var ph = new PaletteHelper(10);
+            var ph = new PaletteHelper(9);
 
             var ordered = new DirectoryInfo("../../Images/ordered/");
             
@@ -115,7 +115,7 @@ namespace Paletter
                 Console.WriteLine();
             }
 
-            var json = File.CreateText(@"../../Images/ordered/data.json");
+            var json = File.CreateText(@"../../Images/data.json");
             json.Write(JsonConvert.SerializeObject(orderedData));
             json.Close();
 
