@@ -51,6 +51,7 @@
     <Compile Include="CieLAB.cs" />
     <Compile Include="CieXYZ.cs" />
     <Compile Include="ColorHelpers.cs" />
+    <Compile Include="MathHelpers.cs" />
     <Compile Include="PaletteHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
