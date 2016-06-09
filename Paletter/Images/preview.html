@@ -1,0 +1,61 @@
+<html>
+<head>
+	
+</head>
+
+<body>
+	<input type="file" id="file-input" />
+
+	<center>
+		<div id="images">
+
+		</div>
+	</center>
+</body>
+
+<script>
+	var data="";
+
+	function readSingleFile(e) {
+		var file = e.target.files[0];
+		if (!file) {
+			return;
+		}
+
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			var contents = e.target.result;
+			data = JSON.parse(contents);
+
+			var container = document.getElementById("images");
+			container.innerHTML = "";
+			var br = document.createElement('div');
+			br.innerHTML = "<br/><br/><br/>";
+
+			for (var i = 0; i < data.length; i++) {
+				var img = data[i];
+
+				var e = document.createElement('div');
+				e.innerHTML = "<img src='" + "../Images/ordered/" + i+".jpg" + "'></img>";
+				container.appendChild(e.firstChild);
+
+				container.appendChild(br);
+
+				var palette = document.createElement('div');
+
+				for (var j = 0; j < img["img1Palette"].length; j++) {
+					var c = img["img1Palette"][j];
+					palette.innerHTML += "<span style='color: rgb(" + c + ");'>&#9608;&#9608;</span>";
+				};
+				palette.innerHTML+='<br/><br/><br/>';
+				container.appendChild(palette);
+
+			};
+		};
+		reader.readAsText(file);
+	};
+
+	document.getElementById('file-input').addEventListener('change', readSingleFile, false);
+	</script
+
+	</html>
