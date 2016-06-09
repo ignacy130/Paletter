@@ -12,6 +12,9 @@ Simple program to extract colours palette from one image and find distance to pa
  - counting vector length
 5. Order images by distance to next, not previously used image
 
+#### TODO
+- better palette extraction (see photo of green fields with trees and sunset in the background)
+
 Sample results:
 
 ![http://i.imgur.com/VmIStb6.jpg](http://i.imgur.com/VmIStb6.jpg)
