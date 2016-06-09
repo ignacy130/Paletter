@@ -81,8 +81,9 @@ namespace Paletter
         public IEnumerable<Color> GetPalette(Bitmap img, int colorsNumber)
         {
             var imgColors = GetHistogram(img);
+            var dict = GetTopColors(imgColors);
 
-            var keyValueList = new List<KeyValuePair<Color, int>>(imgColors);
+            var keyValueList = new List<KeyValuePair<Color, int>>(dict);
 
             keyValueList.Sort(
                 delegate (KeyValuePair<Color, int> firstPair, KeyValuePair<Color, int> nextPair)
@@ -93,6 +94,25 @@ namespace Paletter
 
             var top = keyValueList;
             return top.Select(t => t.Key);
+        }
+
+        private Dictionary<Color, int> GetTopColors(Dictionary<Color, int> imgColors)
+        {
+            var sorted = from pair in imgColors
+                         orderby pair.Value descending
+                         select pair;
+            var dict = sorted.ToDictionary(t => t.Key, v => v.Value);
+            foreach (var item in dict.Select(x => x.Key).ToList())
+            {
+                var similarColors = dict.Where(c => GetDeltaE(item, c.Key) < 13).ToList();
+                foreach (var similar in similarColors.Skip(1))
+                {
+                    dict.Remove(similar.Key);
+                }
+            }
+
+            dict = dict.Take(5).ToDictionary(t => t.Key, v => v.Value);
+            return dict;
         }
 
         private Dictionary<Color, int> GetHistogram(Bitmap thumbBmp)
@@ -114,21 +134,7 @@ namespace Paletter
                 }
             }
 
-            
-            var sorted = from pair in imgColors
-                         orderby pair.Value descending
-                         select pair;
-            var dict = sorted.ToDictionary(t => t.Key, v => v.Value);
-            foreach (var item in dict.Select(x=>x.Key).ToList())
-            {
-                var similarColors = dict.Where(c => GetDeltaE(item, c.Key) < 13).ToList();
-                foreach (var similar in similarColors.Skip(1))
-                {
-                    dict.Remove(similar.Key);
-                }
-            }
-
-            return dict.Take(5).ToDictionary(t => t.Key, v => v.Value);
+            return imgColors;
         }
 
         public bool ThumbnailCallback() { return false; }
