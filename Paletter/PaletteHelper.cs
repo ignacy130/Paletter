@@ -4,38 +4,37 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Paletter
 {
    public class ImageFile
     {
-        public Image Image { get; set; }
+        public Bitmap Image { get; set; }
+
+        public Bitmap OriginalImage { get; set; }
 
         public string Location { get; set; }
+
+        public List<Color> Palette { get; set; }
     }
 
     public class PaletteHelper
     {
         public Dictionary<ImageFile, ImageFile> ImagePairs { get; set; }
 
-        public double[] GetColorsVector(Image img1, Image img2)
+        public double[] GetColorsVector(List<Color> palette1, List<Color> palette2)
         {
-            var palette1 = GetPalette(img1, 5).ToList();
-            var palette2 = GetPalette(img2, 5).ToList();
-
             var colorsVector = new double[5];
 
-            Console.WriteLine("p1 palette");
-            palette1.Select(x => $"{x.R}, {x.G}, {x.B}").ToList().ForEach(Console.WriteLine);
-            Console.WriteLine();
-            Console.WriteLine("p2 palette");
-            palette2.Select(x => $"{x.R}, {x.G}, {x.B}").ToList().ForEach(Console.WriteLine);
-            Console.WriteLine();
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < Math.Min(palette1.Count, palette2.Count); i++)
             {
                 colorsVector[i] = GetSmallestDifference(palette1[i], palette2);
             }
+
+            Console.WriteLine(MathHelpers.GetVectorLength(colorsVector));
 
             return colorsVector.ToArray();
         }
@@ -44,7 +43,7 @@ namespace Paletter
         {
             double smallest = 0;
             int nearest = 0;
-            for (int j = 0; j < 5; j++)
+            for (int j = 0; j < palette.Count; j++)
             {
                 if (palette[j].A != 0)
                 {
@@ -79,11 +78,9 @@ namespace Paletter
             var b = Image.FromFile(images[0]);
         }
 
-        public IEnumerable<Color> GetPalette(Image img, int colorsNumber)
+        public IEnumerable<Color> GetPalette(Bitmap img, int colorsNumber)
         {
-            int thumbSize = 32;
-            var thumbBmp = new Bitmap(img.GetThumbnailImage(thumbSize, thumbSize, ThumbnailCallback, IntPtr.Zero));
-            var imgColors = GetHistogram(thumbSize, thumbBmp);
+            var imgColors = GetHistogram(img);
 
             var keyValueList = new List<KeyValuePair<Color, int>>(imgColors);
 
@@ -94,16 +91,16 @@ namespace Paletter
                 }
             );
 
-            var top = keyValueList.Take(colorsNumber);
+            var top = keyValueList;
             return top.Select(t => t.Key);
         }
 
-        private Dictionary<Color, int> GetHistogram(int thumbSize, Bitmap thumbBmp)
+        private Dictionary<Color, int> GetHistogram(Bitmap thumbBmp)
         {
             var imgColors = new Dictionary<Color, int>();
-            for (int i = 0; i < thumbSize; i++)
+            for (int i = 0; i < thumbBmp.Width; i++)
             {
-                for (int j = 0; j < thumbSize; j++)
+                for (int j = 0; j < thumbBmp.Height; j++)
                 {
                     var color = thumbBmp.GetPixel(i, j);
                     if (imgColors.ContainsKey(color))
@@ -116,7 +113,22 @@ namespace Paletter
                     }
                 }
             }
-            return imgColors;
+
+            
+            var sorted = from pair in imgColors
+                         orderby pair.Value descending
+                         select pair;
+            var dict = sorted.ToDictionary(t => t.Key, v => v.Value);
+            foreach (var item in dict.Select(x=>x.Key).ToList())
+            {
+                var similarColors = dict.Where(c => GetDeltaE(item, c.Key) < 13).ToList();
+                foreach (var similar in similarColors.Skip(1))
+                {
+                    dict.Remove(similar.Key);
+                }
+            }
+
+            return dict.Take(5).ToDictionary(t => t.Key, v => v.Value);
         }
 
         public bool ThumbnailCallback() { return false; }
