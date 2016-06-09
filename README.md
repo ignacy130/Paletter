@@ -17,4 +17,4 @@ Simple program to extract colours palette from one image and find distance to pa
 
 Sample results:
 
-![http://i.imgur.com/VmIStb6.jpg](http://i.imgur.com/VmIStb6.jpg)
+![https://i.imgur.com/nI1qZO6.jpg](https://i.imgur.com/nI1qZO6.jpg)
