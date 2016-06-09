@@ -44,14 +44,14 @@ namespace Paletter
         {
             var ph = new PaletteHelper();
 
-            var ordered = new DirectoryInfo(@"C:\D\Projekty\Aplikacje\StyleArt\Paletter\Images\ordered\");
-
+            var ordered = new DirectoryInfo("../../Images/ordered/");
+            
             foreach (FileInfo file in ordered.GetFiles())
             {
                 file.Delete();
             }
 
-            var files = Directory.GetFiles(@"C:\D\Projekty\Aplikacje\StyleArt\Paletter\Images\photos\");
+            var files = Directory.GetFiles("../../Images/photos/");
 
             var trios = new List<ImageFile>();
 
@@ -75,7 +75,7 @@ namespace Paletter
 
             Console.WriteLine("files to imfs");
             var current = trios[0];
-            current.OriginalImage.Save(@"C:\D\Projekty\Aplikacje\StyleArt\Paletter\Images\ordered\" + 0 + ".jpg");
+            current.OriginalImage.Save("../../Images/ordered/" + 0 + ".jpg");
             trios.Remove(current);
             var i = 1;
             while(trios.Count>0)
@@ -92,7 +92,7 @@ namespace Paletter
                     }
                 }
 
-                nearest.OriginalImage.Save(@"C:\D\Projekty\Aplikacje\StyleArt\Paletter\Images\ordered\" + (i) + ".jpg");
+                nearest.OriginalImage.Save(@"../../Images/ordered/" + (i) + ".jpg");
                 i++;
                 trios.Remove(nearest);
                 current = nearest;
