@@ -23,18 +23,23 @@ namespace Paletter
 
     public class PaletteHelper
     {
+        private int threshold = 40;
+
+        public PaletteHelper(int threshold)
+        {
+            this.threshold = threshold;
+        }
+
         public Dictionary<ImageFile, ImageFile> ImagePairs { get; set; }
 
         public double[] GetColorsVector(List<Color> palette1, List<Color> palette2)
         {
-            var colorsVector = new double[5];
+            var colorsVector = new List<double>();
 
             for (int i = 0; i < Math.Min(palette1.Count, palette2.Count); i++)
             {
-                colorsVector[i] = GetSmallestDifference(palette1[i], palette2);
+                colorsVector.Add(GetSmallestDifference(palette1[i], palette2));
             }
-
-            Console.WriteLine(MathHelpers.GetVectorLength(colorsVector));
 
             return colorsVector.ToArray();
         }
@@ -104,7 +109,7 @@ namespace Paletter
             var dict = sorted.ToDictionary(t => t.Key, v => v.Value);
             foreach (var item in dict.Select(x => x.Key).ToList())
             {
-                var similarColors = dict.Where(c => GetDeltaE(item, c.Key) < 13).ToList();
+                var similarColors = dict.Where(c => GetDeltaE(item, c.Key) < this.threshold).ToList();
                 foreach (var similar in similarColors.Skip(1))
                 {
                     dict.Remove(similar.Key);
