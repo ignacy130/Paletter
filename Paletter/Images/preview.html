@@ -1,6 +1,10 @@
 <html>
 <head>
-	
+	<style>
+		body{
+			font-family: verdana, sans-serif;
+		}
+	</style>
 </head>
 
 <body>
@@ -47,9 +51,29 @@
 					var c = img["img1Palette"][j];
 					palette.innerHTML += "<span style='color: rgb(" + c + ");'>&#9608;&#9608;</span>";
 				};
+				palette.innerHTML+='<br/>';
+				palette.innerHTML+="distance to next: " + img["distance"];
 				palette.innerHTML+='<br/><br/><br/>';
 				container.appendChild(palette);
 
+				if(i===data.length-1){
+					var e = document.createElement('div');
+					e.innerHTML = "<img src='" + "../Images/ordered/" + (i+1)+".jpg" + "'></img>";
+					container.appendChild(e.firstChild);
+
+					container.appendChild(br);
+
+					var palette = document.createElement('div');
+
+					for (var j = 0; j < img["img1Palette"].length; j++) {
+						var c = img["img2Palette"][j];
+						palette.innerHTML += "<span style='color: rgb(" + c + ");'>&#9608;&#9608;</span>";
+					};
+					palette.innerHTML+='<br/>';
+					palette.innerHTML+="distance to next: " + img["distance"];
+					palette.innerHTML+='<br/><br/><br/>';
+					container.appendChild(palette);
+				}
 			};
 		};
 		reader.readAsText(file);
