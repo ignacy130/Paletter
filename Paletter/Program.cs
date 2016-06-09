@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -42,7 +43,7 @@ namespace Paletter
         [STAThread]
         static void Main(string[] args)
         {
-            var ph = new PaletteHelper();
+            var ph = new PaletteHelper(10);
 
             var ordered = new DirectoryInfo("../../Images/ordered/");
             
@@ -54,6 +55,8 @@ namespace Paletter
             var files = Directory.GetFiles("../../Images/photos/");
 
             var trios = new List<ImageFile>();
+
+            var orderedData = new List<dynamic>();
 
             var imferator = 0;
             foreach (var item in files)
@@ -92,12 +95,29 @@ namespace Paletter
                     }
                 }
 
+                orderedData.Add(new {
+                    img1Location = current.Location,
+                    img1Palette = current.Palette,
+                    img2Location = nearest.Location,
+                    img2Palette = nearest.Palette,
+                    distance = shortestDistance
+                });
+
+                Console.WriteLine(current.Location);
+                Console.WriteLine(nearest.Location);
+                Console.WriteLine(shortestDistance);
                 nearest.OriginalImage.Save(@"../../Images/ordered/" + (i) + ".jpg");
                 i++;
                 trios.Remove(nearest);
                 current = nearest;
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine();
             }
 
+            var json = File.CreateText(@"../../Images/ordered/data.json");
+            json.Write(JsonConvert.SerializeObject(orderedData));
+            json.Close();
 
             Console.WriteLine("sorted");
 
