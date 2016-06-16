@@ -11,7 +11,12 @@ Lab stands for: Lightness, a - balance between green and red, b - balance betwee
 
 CIELab is device-independent thus it is used in convertion between RBG and CMYK models.
 
-##### How does it work?
+The space itself is a three-dimentional space of real numbers, so it can represent infinite possible representation of colors. In practice it is mapped onto  a three-dimensional integer space for device-independent digital representation. They often run in the range of ±100 or −128 to +127.
+
+The CIE L*a*b* color space, only showing colors which can be represented within the gamut of the sRGB color space:
+![https://upload.wikimedia.org/wikipedia/commons/2/21/Lab_color_space.png](https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Lab_color_space.png/200px-Lab_color_space.png)
+
+#### How does solution work?
 1. Load images
 2. Generate historgram for each image
 3. Get palette (most representative colors) for each image counting DeltaE distance between colors and removing too similar; best, experimentally obtained, threshold distance is **9**
